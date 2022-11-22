@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import parse from 'html-react-parser';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 
 import Button from "@material-ui/core/Button";
@@ -8,6 +9,7 @@ import Container from "@material-ui/core/Container";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import Paper from "@material-ui/core/Paper";
+import MyStatefulEditor from "./MyStatefulEditor";
 
 import { withStyles } from "@material-ui/core/styles";
 
@@ -25,7 +27,6 @@ class App extends Component {
     name: "",
     room: "test",
   };
-
   client = new W3CWebSocket("ws://127.0.0.1:8000/ws/" + this.state.room + "/");
 
   onButtonClicked = (e) => {
@@ -51,7 +52,7 @@ class App extends Component {
           messages: [
             ...state.messages,
             {
-              msg: dataFromServer.text,
+              msg: parse(dataFromServer.text),
               name: dataFromServer.sender,
             },
           ],
@@ -66,7 +67,7 @@ class App extends Component {
       <Container component="main" maxWidth="xs">
         {this.state.filledForm ? (
           <div style={{ marginTop: 50 }}>
-            Room Name: {this.state.room}
+            Room Name: {this.state.room} (Sender: {this.state.name})
             <Paper
               style={{height: 500, maxHeight: 500, overflow: "auto", boxShadow: "none", }}
             >
@@ -83,7 +84,7 @@ class App extends Component {
               noValidate
               onSubmit={this.onButtonClicked}
             >
-              <TextField id="outlined-helperText" label="Write text" defaultValue="Default Value"
+              {/* <TextField id="outlined-helperText" label="Write text" defaultValue="Default Value"
                 variant="outlined"
                 value={this.state.value}
                 fullWidth
@@ -91,7 +92,16 @@ class App extends Component {
                   this.setState({ value: e.target.value });
                   this.value = this.state.value;
                 }}
-              />
+              /> */}
+              <MyStatefulEditor id="outlined-helperText" label="Write text" defaultValue="Default Value"
+                variant="outlined"
+                value={this.state.value}
+                fullWidth
+                markup=""
+                onChange={(value) => {
+                  this.setState({ value: value });
+                  this.value = this.state.value;
+                }} />
               <Button
                 type="submit"
                 fullWidth
@@ -121,6 +131,13 @@ class App extends Component {
                     this.value = this.state.room;
                   }}
                 />
+                {/* <MyStatefulEditor variant="outlined" margin="normal" required fullWidth label="Room name"
+                  name="Room name"
+                  autoFocus
+                  value={this.state.room} markup="" onChange={(value) => {
+                    this.setState({ room: value });
+                    this.value = this.state.room;
+                  }} /> */}
                 <TextField variant="outlined" margin="normal" required fullWidth name="sender" label="sender"
                   type="sender"
                   id="sender"
